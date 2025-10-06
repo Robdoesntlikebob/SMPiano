@@ -80,6 +80,16 @@ function SNES.play(file)
     if not x then print (y) end
 end
 
+---@param address integer
+function SNES.read(address)
+    gme700.read(address)
+end
+
+---@param address integer
+---@param data integer
+function SNES.write(address, data)
+    gme700.write(address, data)
+end
 
 --for some reason ts is necessary now :/
 return SNES

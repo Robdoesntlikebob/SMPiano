@@ -1,77 +1,16 @@
-_G.ffi = require ("ffi")
---start of module (table of functions id assume)
-local SNES = {}
-local gme700 = ffi.load("sndEMU.dll")
+/* SNES SPC-700 APU emulator C interface (also usable from C++) */
 
-ffi.cdef[[
-typedef struct SPC_DSP SPC_DSP;
+/* snes_spc 0.9.0 */
+#ifndef SPC_H
+#define SPC_H
 
-/* Creates new DSP emulator. NULL if out of memory. */
-SPC_DSP* spc_dsp_new( void );
+#include <stddef.h>
 
-/* Frees DSP emulator */
-void spc_dsp_delete( SPC_DSP* );
+#ifdef __cplusplus
+	extern "C" {
+#endif
 
-/* Initializes DSP and has it use the 64K RAM provided */
-void spc_dsp_init( SPC_DSP*, void* ram_64k );
-
-/* Sets destination for output samples. If out is NULL or out_size is 0,
-doesn't generate any. */
-typedef short spc_dsp_sample_t;
-void spc_dsp_set_output( SPC_DSP*, spc_dsp_sample_t* out, int out_size );
-
-/* Number of samples written to output since it was last set, always
-a multiple of 2. Undefined if more samples were generated than
-output buffer could hold. */
-int spc_dsp_sample_count( SPC_DSP const* );
-
-
-/**** Emulation *****/
-
-/* Resets DSP to power-on state */
-void spc_dsp_reset( SPC_DSP* );
-
-/* Emulates pressing reset switch on SNES */
-void spc_dsp_soft_reset( SPC_DSP* );
-
-/* Reads/writes DSP registers. For accuracy, you must first call spc_dsp_run() */
-/* to catch the DSP up to present. */
-int  spc_dsp_read ( SPC_DSP const*, int addr );
-void spc_dsp_write( SPC_DSP*, int addr, int data );
-
-/* Runs DSP for specified number of clocks (~1024000 per second). Every 32 clocks */
-/* a pair of samples is be generated. */
-void spc_dsp_run( SPC_DSP*, int clock_count );
-
-
-/**** Sound control *****/
-
-/* Mutes voices corresponding to non-zero bits in mask. Reduces emulation accuracy. */
-enum { spc_dsp_voice_count = 8 };
-void spc_dsp_mute_voices( SPC_DSP*, int mask );
-
-/* If true, prevents channels and global volumes from being phase-negated.
-Only supported by fast DSP; has no effect on accurate DSP. */
-void spc_dsp_disable_surround( SPC_DSP*, int disable );
-
-
-/**** State save/load *****/
-
-/* Resets DSP and uses supplied values to initialize registers */
-enum { spc_dsp_register_count = 128 };
-void spc_dsp_load( SPC_DSP*, unsigned char const regs [spc_dsp_register_count] );
-
-/* Saves/loads exact emulator state (accurate DSP only) */
-enum { spc_dsp_state_size = 640 }; /* maximum space needed when saving */
-typedef void (*spc_dsp_copy_func_t)( unsigned char** io, void* state, size_t );
-void spc_dsp_copy_state( SPC_DSP*, unsigned char** io, spc_dsp_copy_func_t );
-
-/* Returns non-zero if new key-on events occurred since last call (accurate DSP only) */
-int spc_dsp_check_kon( SPC_DSP* );
-
-/* working with malloc() function (custom) */
-void* malloc(size_t size);
-
+/* Error string return. NULL if success, otherwise error message. */
 typedef const char* spc_err_t;
 
 typedef struct SNES_SPC SNES_SPC;
@@ -81,6 +20,12 @@ SNES_SPC* spc_new( void );
 
 /* Frees SPC emulator */
 void spc_delete( SNES_SPC* );
+
+/* Sample pairs generated per second */
+enum { spc_sample_rate = 32000 };
+
+
+/**** Emulator use ****/
 
 /* Sets IPL ROM data. Library does not include ROM data. Most SPC music files
 don't need ROM, but a full emulator must provide this. */
@@ -194,52 +139,9 @@ enum { spc_filter_bass_norm =  8 }; /* normal amount */
 enum { spc_filter_bass_max  = 31 };
 void spc_filter_set_bass( SPC_Filter*, int bass );
 
-]]
 
-local spc
-local dsp
-local emu
-local buffer
-local ram
-local filter
+#ifdef __cplusplus
+	}
+#endif
 
-function SNES.load()
-    buffer = ffi.new("short[?]", 512)
-    ram = ffi.new("unsigned char[?]", 0x10000)
-	spc=gme700.spc_new()
-    dsp=gme700.spc_dsp_new()
-    filter=gme700.spc_filter_new()
-    gme700.spc_dsp_init(dsp, ram)
-    local ipl = love.filesystem.read("ipl.sfc")
-    local x,y = pcall(function()gme700.spc_init_rom(spc,ipl)end)
-    if not x then print (y) else print("success") end
-end
-
----@param addr integer Address (0x00 up to 0x7F, beacuse you are writing to DSP and not to SMP). If unsure, use a SPC700 reference.
-local function read(addr)
-    return gme700.spc_dsp_read(dsp, addr)
-end
-
----@param addr integer Address (0x00 up to 0x7F, beacuse you are writing to DSP and not to SMP). If unsure, use a SPC700 reference.
----@param data integer Data to send to Address argument (0x00 up to 0xFF). If unsure, use a SPC700 reference.
-local function write(addr, data)
-    gme700.spc_dsp_write(dsp, addr, data)
-    print(string.format("written value %d to address %d", data, addr))
-end
-
---0x5d is the destination of samples (DIR)
---0xV4 is the sample number/chosen sample for channel V (VxSRCN)
-
-local smpPOS = 0
-if smpPOS > 255 then smpPOS = 255 end --max limit for smpPOS (data) is 255 (0xff)
-
-function SNES.brr2aram(x)
-    local rawx = io.open(x, "rb")
-    local xb = rawx:read("*a")
-    print(xb)
-    write(0x5d,smpPOS) --go to position 0 in ARAM
-    smpPOS = smpPOS + 1
-end
-
---for some reason ts is necessary now :/
-return SNES
+#endif

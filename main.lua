@@ -1,12 +1,10 @@
 local love = require ("love")
 local loveframes = require ("loveframes")
-local changelog = "Step 1: UI framework"
+local changelog = "Step 2: Implementing SNES emulation"
 local SNES = require ("SNES")
 
 local songs = {}
 local samples = {}
-local instDUMP = {}
-local instruments = {}
 local app = {}
 local relwidth, relheight = love.window.getMode()
 
@@ -27,24 +25,21 @@ function ()
     end]]
 
 
-local function drawsmp(chosensample, name, sound, file, inst, settings)
-    file = chosensample[1]
-    if file == nil then app.import:SetClickable(true) return else _, name = string.match(file, "(.-)([^\\]-([^\\%.]+))$") end
-    chosensample = loveframes.Create("button", app.smpframe)
-    chosensample:SetText(name)
-    chosensample.OnClick = function()
-        --SOUND SOURCE
-        sound = love.audio.newSource(love.filesystem.openNativeFile(file, "r"), "stream")
-        sound:play()
-        SNES.play(file)
-    end
-    table.insert(samples, chosensample)
+local function drawsmp(chosensample, name, sound, path, inst, settings)
+    path = chosensample[1]
+    if path == nil then app.import:SetClickable(true) return else _, name = string.match(path, "(.-)([^\\]-([^\\%.]+))$") end
+    SNES.brr2aram(path)
+    local smpBTN = loveframes.Create("button", app.smpframe)
+    smpBTN:SetText(name)
+    smpBTN.OnClick = function()
+        return 0
+    end 
     --allow importing another file
     app.import:SetClickable(true)
 end
 
 local function addsample()
-    app.x = love.window.showFileDialog("openfile", drawsmp, {title = "Import Sample", acceptlabel = "Import", cancellabel = "Back", attachtowindow=false, multiselect = false})
+    app.x = love.window.showFileDialog("openfile", drawsmp, {title = "Import Sample", acceptlabel = "Import", cancellabel = "Back", attachtowindow=false, multiselect = false, filters = {["BRR file (*.brr)"] = "brr",["WAV file (*.wav)"] = "wav" }})
 end
 
 

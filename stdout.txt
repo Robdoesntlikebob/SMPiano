@@ -1,0 +1,6 @@
+Reading config file C:\Users\thech\Downloads\snes9x-1.51-rerecording-v7.1-win32/snes9x.cfg
+Saving	config file	C:\Users\thech\Downloads\snes9x-1.51-rerecording-v7.1-win32/snes9x.cfg
+No ROM file header found.
+Map_LoROMMap
+"asdasda" [checksum ok] LoROM, 1Mbits, Type: ROM, Mode: 20, TV: NTSC, S-RAM: 0KB, ROMId: SNES Company: 00 CRC32: 7A343859
+Saving	config file	C:\Users\thech\Downloads\snes9x-1.51-rerecording-v7.1-win32/snes9x.cfg

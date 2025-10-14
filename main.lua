@@ -32,7 +32,7 @@ local function drawsmp(chosensample, name, sound, path, inst, settings)
     local smpBTN = loveframes.Create("button", app.smpframe)
     smpBTN:SetText(name)
     smpBTN.OnClick = function()
-        return 0
+        SNES.play(path)
     end 
     --allow importing another file
     app.import:SetClickable(true)

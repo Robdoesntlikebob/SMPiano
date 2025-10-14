@@ -69,9 +69,6 @@ void spc_dsp_copy_state( SPC_DSP*, unsigned char** io, spc_dsp_copy_func_t );
 /* Returns non-zero if new key-on events occurred since last call (accurate DSP only) */
 int spc_dsp_check_kon( SPC_DSP* );
 
-/* working with malloc() function (custom) */
-void* malloc(size_t size);
-
 typedef const char* spc_err_t;
 
 typedef struct SNES_SPC SNES_SPC;
@@ -200,19 +197,26 @@ local spc
 local dsp
 local emu
 local buffer
-local ram
+local aram
 local filter
 
 function SNES.load()
     buffer = ffi.new("short[?]", 512)
-    ram = ffi.new("unsigned char[?]", 0x10000)
+    aram = ffi.new("unsigned char[?]", 0x10000)
 	spc=gme700.spc_new()
     dsp=gme700.spc_dsp_new()
     filter=gme700.spc_filter_new()
-    gme700.spc_dsp_init(dsp, ram)
+    gme700.spc_dsp_init(dsp, aram)
     local ipl = love.filesystem.read("ipl.sfc")
     local x,y = pcall(function()gme700.spc_init_rom(spc,ipl)end)
     if not x then print (y) else print("success") end
+    gme700.spc_set_output(spc, buffer, 512)
+    gme700.spc_dsp_set_output(dsp, buffer, 512)
+end
+
+---@param clocks integer Runs DSP for specified number of clocks (~1024000 per second). Every 32 clocks a pair of samples is generated. Preferred for accuracy
+local function run(clocks)
+    gme700.spc_dsp_run(dsp, clocks)
 end
 
 ---@param addr integer Address (0x00 up to 0x7F, beacuse you are writing to DSP and not to SMP). If unsure, use a SPC700 reference.
@@ -223,22 +227,40 @@ end
 ---@param addr integer Address (0x00 up to 0x7F, beacuse you are writing to DSP and not to SMP). If unsure, use a SPC700 reference.
 ---@param data integer Data to send to Address argument (0x00 up to 0xFF). If unsure, use a SPC700 reference.
 local function write(addr, data)
+    run(1)
     gme700.spc_dsp_write(dsp, addr, data)
-    print(string.format("written value %d to address %d", data, addr))
 end
 
 --0x5d is the destination of samples (DIR)
 --0xV4 is the sample number/chosen sample for channel V (VxSRCN)
 
 local smpPOS = 0
-if smpPOS > 255 then smpPOS = 255 end --max limit for smpPOS (data) is 255 (0xff)
+if smpPOS > 255 then smpPOS = 0
+print("You can't load any more samples") end --max limit for smpPOS (data) is 255 (0xff)
 
 function SNES.brr2aram(x)
     local rawx = io.open(x, "rb")
     local xb = rawx:read("*a")
-    print(xb)
-    write(0x5d,smpPOS) --go to position 0 in ARAM
+    write(0x5d, smpPOS) --set sample destination (DIR)
+    local brrsize = #xb
+    local lpOFF = 0
+    if brrsize % 9 == 2 then
+        local xb1, xb2 = xb:byte(1,2)
+        lpOFF = string.format("%02X%02X", xb1, xb2)
+        print(lpOFF) --debug
+    elseif brrsize % 9 == 0 then return else assert(_,"SizeError: Corrupt BRR file") end
+    local lpPOINT = nil
+
     smpPOS = smpPOS + 1
+end
+
+function SNES.play(x)
+    SNES.brr2aram(x)
+    write(0x04,0x00)
+    run(32)
+    write(0x4c, 0b00000001)
+    run(1024000)
+    write(0x5c, 0b00000001)
 end
 
 --for some reason ts is necessary now :/

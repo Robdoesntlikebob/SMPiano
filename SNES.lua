@@ -244,23 +244,25 @@ function SNES.brr2aram(x)
     write(0x5d, smpPOS) --set sample destination (DIR)
     local brrsize = #xb
     local lpOFF = 0
+    --finding loop offest
     if brrsize % 9 == 2 then
         local xb1, xb2 = xb:byte(1,2)
-        lpOFF = string.format("%02X%02X", xb1, xb2)
-        print(lpOFF) --debug
-    elseif brrsize % 9 == 0 then return else assert(_,"SizeError: Corrupt BRR file") end
-    local lpPOINT = nil
-
+        local y = string.format("%02X%02X", xb1, xb2)
+        lpOFF = y:byte()
+        print("Debug: Loop Offset: "..lpOFF) --debug
+    elseif brrsize % 9 == 0 then return else error("SizeError: Corrupt BRR file") end
+    local xbunsigned = ffi.new("unsigned char", xb:byte())
+    aram[smpPOS] = xb:byte() --Sample start
+    print("Debug: Sample Start: "..aram[smpPOS])
+    print("Debug: Loop offset type: "..type(lpOFF))
+    print("Debug: Sample start type: "..type(xb:byte()))
+    local lpSTART = lpOFF + xb:byte()
+    print("Debug: Loop Start: "..lpSTART)
+    print(read(0x5d))
     smpPOS = smpPOS + 1
 end
 
 function SNES.play(x)
-    SNES.brr2aram(x)
-    write(0x04,0x00)
-    run(32)
-    write(0x4c, 0b00000001)
-    run(1024000)
-    write(0x5c, 0b00000001)
 end
 
 --for some reason ts is necessary now :/

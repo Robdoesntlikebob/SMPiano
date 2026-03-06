@@ -225,6 +225,8 @@ int main()
 		};
 		sf::Texture see; see.update(m_eyes_on);
 		bool s_on = true;
+		if (!s_on) see.update(m_eyes_off);
+		else if (s_on) see.update(m_eyes_on);
 
 		/*this is where the fun begins*/
 		SetNextWindowSize({ window.getSize() });
@@ -261,7 +263,7 @@ int main()
 		Separator();
 		ImageButton("See Track", see, {10,8});
 		if (IsItemClicked) {
-			see.update(m_eyes_off);
+			s_on = !s_on;
 			/*TODO: show/dont show track code*/
 		}
 		EndChild();

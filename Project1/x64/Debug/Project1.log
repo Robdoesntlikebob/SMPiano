@@ -3,11 +3,18 @@
 C:\Users\thech\Documents\GitHub\snes-daw-cpp--attempt-69-\Project1\sndEMU\SPC_DSP.h(238,57): warning C4244: 'return': conversion from '__int64' to 'int', possible loss of data
   (compiling source file 'main.cpp')
   
-C:\Users\thech\Documents\GitHub\snes-daw-cpp--attempt-69-\Project1\main.cpp(76,44): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\thech\Documents\GitHub\snes-daw-cpp--attempt-69-\Project1\main.cpp(89,44): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\thech\Documents\GitHub\snes-daw-cpp--attempt-69-\Project1\main.cpp(94,14): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\thech\Documents\GitHub\snes-daw-cpp--attempt-69-\Project1\main.cpp(111,32): warning C4554: '>>': check operator precedence for possible error; use parentheses to clarify precedence
-C:\Users\thech\Documents\GitHub\snes-daw-cpp--attempt-69-\Project1\main.cpp(112,10): warning C4267: '+=': conversion from 'size_t' to 'unsigned int', possible loss of data
-C:\Users\thech\Documents\GitHub\snes-daw-cpp--attempt-69-\Project1\main.cpp(120,28): warning C4244: 'argument': conversion from 'double' to 'unsigned int', possible loss of data
-C:\Users\thech\Documents\GitHub\snes-daw-cpp--attempt-69-\Project1\main.cpp(154,19): warning C4834: discarding return value of function with [[nodiscard]] attribute
+C:\Users\thech\Documents\GitHub\snes-daw-cpp--attempt-69-\Project1\main.cpp(83,44): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\thech\Documents\GitHub\snes-daw-cpp--attempt-69-\Project1\main.cpp(99,44): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\thech\Documents\GitHub\snes-daw-cpp--attempt-69-\Project1\main.cpp(104,14): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\thech\Documents\GitHub\snes-daw-cpp--attempt-69-\Project1\main.cpp(106,41): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\thech\Documents\GitHub\snes-daw-cpp--attempt-69-\Project1\main.cpp(124,32): warning C4554: '>>': check operator precedence for possible error; use parentheses to clarify precedence
+C:\Users\thech\Documents\GitHub\snes-daw-cpp--attempt-69-\Project1\main.cpp(125,10): warning C4267: '+=': conversion from 'size_t' to 'unsigned int', possible loss of data
+C:\Users\thech\Documents\GitHub\snes-daw-cpp--attempt-69-\Project1\main.cpp(133,28): warning C4244: 'argument': conversion from 'double' to 'unsigned int', possible loss of data
+C:\Users\thech\Documents\GitHub\snes-daw-cpp--attempt-69-\Project1\main.cpp(137,13): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+C:\Users\thech\Documents\GitHub\snes-daw-cpp--attempt-69-\Project1\main.cpp(151,13): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+C:\Users\thech\Documents\GitHub\snes-daw-cpp--attempt-69-\Project1\main.cpp(187,19): warning C4834: discarding return value of function with [[nodiscard]] attribute
+C:\Users\thech\Documents\GitHub\snes-daw-cpp--attempt-69-\Project1\main.cpp(207,4): warning C4838: conversion from 'unsigned int' to 'const uint8_t' requires a narrowing conversion
+C:\Users\thech\Documents\GitHub\snes-daw-cpp--attempt-69-\Project1\main.cpp(207,4): warning C4305: 'initializing': truncation from 'unsigned int' to 'const uint8_t'
+C:\Users\thech\Documents\GitHub\snes-daw-cpp--attempt-69-\Project1\main.cpp(207,4): warning C4309: 'initializing': truncation of constant value
+C:\Users\thech\Documents\GitHub\snes-daw-cpp--attempt-69-\Project1\main.cpp(249,7): warning C4551: function call missing argument list
   Project1.vcxproj -> C:\Users\thech\Documents\GitHub\snes-daw-cpp--attempt-69-\x64\Debug\SMPiano.exe

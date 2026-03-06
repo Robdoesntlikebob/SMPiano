@@ -30,6 +30,7 @@
  // 17.4.1.2 Headers
 
  // C
+//edited by the GOAT robert j because fuck ^^^^ you ^^^^
 #ifndef _GLIBCXX_NO_ASSERT
 #include <cassert>
 #endif

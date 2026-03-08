@@ -178,6 +178,80 @@ void testbutton() {
 	}
 }
 
+#define black 0,0,0,255
+#define white 255,255,255,255
+#define blank 0,0,0,0
+#define gy1 0x7f,0x7f,0x7f,255
+#define gy2 0x3f,0x3f,0x3f,255
+#define o1 0xff,0x7f,0,255
+
+constexpr uint8_t m_on[] = {
+	white,white,blank,white,white,
+	white,black,blank,black,white,
+	white,black,blank,black,white,
+	blank,blank,blank,blank,blank
+};
+constexpr uint8_t m_off[] = {
+	blank,blank,blank,blank,blank,
+	blank,blank,blank,blank,blank,
+	black,black,blank,black,black,
+	blank,blank,blank,blank,blank
+};
+constexpr uint8_t au_on[] = {
+	blank,blank,blank,gy1,blank,blank,blank,o1,blank,blank,
+	blank,blank,gy1,white,blank,o1,blank,blank,o1,blank,
+	blank,gy1,gy1,white,white,blank,o1,blank,o1,blank,
+	blank,gy1,gy1,gy1,gy1,blank,o1,blank,o1,blank,
+	blank,gy1,gy1,gy1,gy1,blank,o1,blank,o1,blank,
+	blank,gy1,gy1,gy1,gy2,blank,o1,blank,o1,blank,
+	blank,blank,gy1,gy2,blank,o1,blank,blank,o1,blank,
+	blank,blank,blank,gy2,blank,blank,blank,o1,blank,blank
+};
+constexpr uint8_t au_off[] = {
+	blank,blank,blank,gy2,blank,blank,blank,gy2,blank,blank,
+	blank,blank,gy2,gy1,blank,gy2,blank,blank,gy2,blank,
+	blank,gy2,gy2,gy1,gy1,blank,gy2,blank,gy2,blank,
+	blank,gy2,gy2,gy2,gy2,blank,gy2,blank,gy2,blank,
+	blank,gy2,gy2,gy2,gy2,blank,gy2,blank,gy2,blank,
+	blank,gy2,gy2,gy2,gy2,blank,gy2,blank,gy2,blank,
+	blank,blank,gy2,gy2,blank,gy2,blank,blank,gy2,blank,
+	blank,blank,blank,gy2,blank,blank,blank,gy2,blank,blank
+};
+
+void createchannel(const char* name, unsigned number) {
+	bool v_on = false;
+	bool s_on = true;
+	sf::Texture see(sf::Vector2u(5, 4), false); see.update(m_on);
+	sf::Texture hear(sf::Vector2u(10, 8), false); hear.update(au_on);
+	if (v_on) see.update(m_on);
+	if (!v_on) see.update(m_off);
+	if (s_on) {
+		hear.update(au_on);
+	}
+	if (!s_on) {
+		hear.update(au_off);
+	}
+	constexpr ImGuiChildFlags chcprop = ImGuiChildFlags_Border;
+	constexpr ImGuiWindowFlags chwprop = ImGuiWindowFlags_NoMove bitor ImGuiWindowFlags_NoResize bitor ImGuiWindowFlags_NoScrollbar bitor ImGuiWindowFlags_NoScrollWithMouse;
+	BeginChild(name, { 85, 50 }, chcprop, chwprop);
+	Text(name);
+	Separator();
+	ImageButton("View Track", see, { 20,16 });
+	if (IsItemClicked()) {
+		v_on = !v_on;
+		print(v_on);
+		/*TODO: View Track Code*/
+	}
+	SameLine(0, -1);
+	ImageButton("Enable Track", hear, { 20,16 });
+	if (IsItemClicked()) {
+		s_on = !s_on;
+		print(s_on);
+		/*TODO: Enable Track Code*/
+	}
+	EndChild();
+}
+
 int main()
 {
 	emu.play();
@@ -191,9 +265,11 @@ int main()
 		ImVec2 w = window.getSize();
 		auto [width, height] = w;
 		ImGuiIO &io = GetIO();
-		ImGuiStyle &theme = GetStyle();
+		ImGuiStyle& theme = GetStyle();
 		theme.FrameRounding = 2.0f;
-
+		ImVec4 ogbtn = theme.Colors[ImGuiCol_Button]; //temp
+		ImVec4 oghvr = theme.Colors[ImGuiCol_ButtonHovered]; //temp
+		ImVec4 ogav = theme.Colors[ImGuiCol_ButtonActive]; //temp
 		while (const auto event = window.pollEvent()) {
 			SFML::ProcessEvent(window, *event);
 #define event(e) event->is<sf::Event::##e>()
@@ -202,31 +278,7 @@ int main()
 			}
 		}
 		SFML::Update(window, dt.restart());
-
-		const uint8_t m_eyes_on[] = {
-			0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,0,0,0xffffffff,0xffffffff,0xffffffff,0xffffffff,
-			0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff,0,0,0xffffffff,0xffffffff,0xffffffff,0xffffffff,
-			0xffffffff, 0xffffffff, 0xff, 0xff,0, 0, 0xff, 0xff, 0xffffffff,0xffffffff,
-			0xffffffff, 0xffffffff, 0xff, 0xff,0, 0, 0xff, 0xff, 0xffffffff,0xffffffff,
-			0xffffffff, 0xffffffff, 0xff, 0xff,0, 0, 0xff, 0xff, 0xffffffff,0xffffffff,
-			0xffffffff, 0xffffffff, 0xff, 0xff,0, 0, 0xff, 0xff, 0xffffffff,0xffffffff,
-			0xffffffff, 0xffffffff, 0xff, 0xff,0, 0, 0xff, 0xff, 0xffffffff,0xffffffff,
-			0xffffffff, 0xffffffff, 0xff, 0xff,0, 0, 0xff, 0xff, 0xffffffff,0xffffffff
-		};
-		const uint8_t m_eyes_off[] = {
-			0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,
-			0xff,0xff,0xff,0xff,0,0,0xff,0xff,0xff,0xff,
-			0xff,0xff,0xff,0xff,0,0,0xff,0xff,0xff,0xff
-		};
-		sf::Texture see; see.update(m_eyes_on);
-		bool s_on = true;
-		if (!s_on) see.update(m_eyes_off);
-		else if (s_on) see.update(m_eyes_on);
+		theme.Colors[ImGuiCol_WindowBg] = { 0.71f, 0.71f, 0.89f, 1.00f };
 
 		/*this is where the fun begins*/
 		SetNextWindowSize({ window.getSize() });
@@ -252,38 +304,37 @@ int main()
 			}
 			EndMenuBar();
 		}
-		SetNextWindowSize({width/1.2f, height/3.5f});
+		SetNextWindowSize({width/1.2f, height/3.25f});
 		SetNextWindowPos({ 0,20 });
-		ImGuiChildFlags chcprop = ImGuiChildFlags_Border;
-		ImGuiWindowFlags chwprop = ImGuiWindowFlags_NoMove bitor ImGuiWindowFlags_NoResize bitor ImGuiWindowFlags_NoScrollbar;
-		Begin("Channels", 0, ImGuiWindowFlags_NoResize bitor ImGuiWindowFlags_NoMove bitor ImGuiWindowFlags_HorizontalScrollbar bitor ImGuiWindowFlags_AlwaysVerticalScrollbar);
-		BeginChild("ChannelSep", { 100,400 }, ImGuiChildFlags_Border, ImGuiWindowFlags_NoMove bitor ImGuiWindowFlags_NoResize);
-		BeginChild("Channel 1", { 0, 50 }, chcprop, chwprop);
-		Text("Channel 1");
-		Separator();
-		ImageButton("See Track", see, {10,8});
-		if (IsItemClicked) {
-			s_on = !s_on;
-			/*TODO: show/dont show track code*/
-		}
-		EndChild();
+		Begin("Channels", 0, ImGuiWindowFlags_NoResize bitor ImGuiWindowFlags_NoMove bitor ImGuiWindowFlags_NoScrollbar);
+		BeginChild("ChannelSep", { 100,0 }, ImGuiChildFlags_Border, ImGuiWindowFlags_NoMove bitor ImGuiWindowFlags_NoResize bitor ImGuiWindowFlags_NoScrollbar);
+		const char* chname[] = { "Channel 1", "Channel 2", "Channel 3", "Channel 4", "Channel 5", "Channel 6", "Channel 7", "Channel 8" };
+		theme.Colors[ImGuiCol_Button] = { 0,0,0,0 };
+		theme.Colors[ImGuiCol_ButtonHovered] = { 0,0,0,0 };
+		theme.Colors[ImGuiCol_ButtonActive] = { 0,0,0,0 };
+		createchannel("Channel 1", 0);
+		theme.Colors[ImGuiCol_Button] = ogbtn;
+		theme.Colors[ImGuiCol_ButtonHovered] = oghvr;
+		theme.Colors[ImGuiCol_ButtonActive] = ogav;
+
 
 		EndChild();
 
 		End();
 		SetNextWindowSize({width-(width/1.2f), (height/3)-20});
 		SetNextWindowPos({ width/1.2f,20});
-		Begin("Songs", 0, ImGuiWindowFlags_NoResize bitor ImGuiWindowFlags_NoMove bitor ImGuiWindowFlags_AlwaysVerticalScrollbar bitor ImGuiWindowFlags_NoCollapse);
+		Begin("Songs", 0, ImGuiWindowFlags_NoResize bitor ImGuiWindowFlags_NoMove bitor ImGuiWindowFlags_NoCollapse bitor ImGuiWindowFlags_NoScrollbar);
 		/*songs*/
 		End();
 		SetNextWindowSize({width-(width/1.2f), height/3});
 		SetNextWindowPos({ width/1.2f,height/3});
-		Begin("Samples", 0, ImGuiWindowFlags_NoResize bitor ImGuiWindowFlags_NoMove bitor ImGuiWindowFlags_AlwaysVerticalScrollbar bitor ImGuiWindowFlags_NoCollapse);
+		Begin("Samples", 0, ImGuiWindowFlags_NoResize bitor ImGuiWindowFlags_NoMove bitor ImGuiWindowFlags_NoCollapse bitor ImGuiWindowFlags_NoScrollbar);
 		/*samples*/
+		testbutton();
 		End();
 		SetNextWindowSize({width-(width/1.2f), height/3});
 		SetNextWindowPos({ width/1.2f, height/1.5f});
-		Begin("Instruments", 0, ImGuiWindowFlags_NoResize bitor ImGuiWindowFlags_NoMove bitor ImGuiWindowFlags_AlwaysVerticalScrollbar bitor ImGuiWindowFlags_NoCollapse);
+		Begin("Instruments", 0, ImGuiWindowFlags_NoResize bitor ImGuiWindowFlags_NoMove bitor ImGuiWindowFlags_NoCollapse bitor ImGuiWindowFlags_NoScrollbar);
 		/*instruments*/
 		End();
 
